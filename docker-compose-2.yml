@@ -1,0 +1,78 @@
+version: "3.8"
+
+networks:
+  shared_network:
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - shared_network
+
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    networks:
+      - shared_network
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser", "-d", "mydatabase"]
+      interval: 10s
+      retries: 5
+
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - shared_network
+    volumes:
+      - mongo_data:/data/db
+
+  data_loader:
+    build:
+      context: .
+      dockerfile: Dockerfile-1
+    container_name: data_loader
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+    networks:
+      - shared_network
+    volumes:
+      - ./data_loader.py:/app/data_loader.py
+  
+  wp_updater:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wp_updater
+    networks:
+      - shared_network
+    volumes:
+      - ./create_blog.py:/app/create_blog.py
+      - ./update_blog.py:/app/update_blog.py
+    environment:
+      WORDPRESS_URL: "http://wordpress/wp-json/wp/v2/posts"
+    depends_on:
+      wordpress:
+        condition: service_healthy
+volumes:
+  pg_data:
+  mongo_data:

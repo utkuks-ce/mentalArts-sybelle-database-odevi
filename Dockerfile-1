@@ -1,0 +1,17 @@
+# Veri yükleme işlemleri için Python imajı
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# PostgreSQL için gerekli kütüphaneler ve bağımlılıklar
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+
+# Gerekli Python kütüphanelerini yükle
+RUN pip install --no-cache-dir psycopg2-binary pymongo redis
+
+# Veri yükleme betiğini kopyala
+COPY data_loader.py data_loader.py
+
+# Varsayılan komut
+CMD ["python", "data_loader.py"]
+

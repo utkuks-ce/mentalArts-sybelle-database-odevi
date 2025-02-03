@@ -1,40 +1,63 @@
-version: '3.8'
+version: "3.8"
+
+networks:
+  shared_network:
 
 services:
+  apache:
+    image: httpd:latest
+    container_name: apache
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/usr/local/apache2/htdocs
+    depends_on:
+      - wordpress
+    networks:
+      - shared_network
+
   wordpress:
     image: wordpress:latest
-    restart: always
+    container_name: wordpress
     ports:
       - "8080:80"
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: user
-      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_HOST: mysql-db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
     volumes:
       - wordpress_data:/var/www/html
     depends_on:
-      - db
-
-  db:
+      - mysql-db
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/wp-json/wp/v2/posts"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+  mysql-db:
     image: mysql:5.7
+    container_name: mysql-db
     restart: always
     environment:
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wordpress
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: rootpassword
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  apache:
-    image: httpd:latest
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
     ports:
-      - "8081:80"
+      - "3306:3306"
     volumes:
-      - ./apache-config:/usr/local/apache2/conf
+      - db_data:/var/lib/mysql
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
 
 volumes:
+  db_data:
   wordpress_data:
-  mysql_data:
 
