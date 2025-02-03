@@ -17,10 +17,10 @@ try:
     response = requests.put(WORDPRESS_URL, json=data, auth=(USERNAME, PASSWORD))
 
     if response.status_code == 200:
-        print("✅ Blog yazısı başarıyla güncellendi!")
+        print("Blog yazısı başarıyla güncellendi!")
     else:
-        print(f"⚠️ Hata: {response.status_code}, {response.text}")
+        print(f"Hata: {response.status_code}, {response.text}")
 
 except requests.exceptions.RequestException as e:
-    print(f"❌ HTTP isteği başarısız oldu: {e}")
+    print(f"HTTP isteği başarısız oldu: {e}")
 
