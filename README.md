@@ -136,5 +136,5 @@ Bu proje, **WordPress yönetimi**, **PostgreSQL/MongoDB veri yönetimi**, **Redi
 🔗 **Geliştirme süreciyle ilgili katkıda bulunmak için PR gönderebilirsiniz!**
 
 📌 **Lisans:** MIT  
-📌 **Geliştirici:** [Utku Kadir Somer](https://github.com/kullanici)  
-📌 **İletişim:** `utkukadirsomer@example.com`
+📌 **Geliştirici:** [Utku Kadir Somer](https://github.com/utkuks-ce)  
+📌 **İletişim:** `utkuks.ce@gmail.com`
